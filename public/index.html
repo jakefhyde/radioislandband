@@ -50,16 +50,14 @@
         .title-line, .subtitle-line {
             display: flex;
             justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .title-line {
-            margin-bottom: 0.75rem;
+            flex-wrap: nowrap; /* Prevents individual letters from wrapping */
+            white-space: nowrap;
         }
 
         .char {
             display: inline-block;
-            font-size: clamp(2.5rem, 7vw, 5.5rem);
+            /* Lowered minimum size to 1.2rem so 17 characters shrink onto mobile screens */
+            font-size: clamp(1.2rem, 6.5vw, 5.5rem);
             font-weight: 700;
             background: linear-gradient(135deg, #38bdf8 0%, #a855f7 50%, #f43f5e 100%);
             -webkit-background-clip: text;
@@ -70,7 +68,7 @@
         }
 
         .subtitle-line .char {
-            font-size: clamp(1.2rem, 3.5vw, 2.2rem);
+            font-size: clamp(0.7rem, 3.5vw, 2.2rem);
             font-weight: 600;
             background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
             -webkit-background-clip: text;
