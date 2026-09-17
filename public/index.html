@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Island Band - Coming Soon</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #0a0d14;
+            color: #f0f6fc;
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Subtle radial ambient glow in the background */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, rgba(168, 85, 247, 0.06) 50%, rgba(0, 0, 0, 0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 1;
+            padding: 2rem;
+            user-select: none;
+        }
+
+        .title-line, .subtitle-line {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .title-line {
+            margin-bottom: 0.75rem;
+        }
+
+        .char {
+            display: inline-block;
+            font-size: clamp(2.5rem, 7vw, 5.5rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #38bdf8 0%, #a855f7 50%, #f43f5e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 30px rgba(56, 189, 248, 0.15);
+            will-change: transform;
+            white-space: pre;
+        }
+
+        .subtitle-line .char {
+            font-size: clamp(1.2rem, 3.5vw, 2.2rem);
+            font-weight: 600;
+            background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .space {
+            width: 0.35em;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="text-container">
+        <div class="title-line" id="main-title"></div>
+        <div class="subtitle-line" id="sub-title"></div>
+    </div>
+
+    <script>
+        const titleText = "Radio Island Band";
+        const subtitleText = "coming soon";
+
+        const mainTitleContainer = document.getElementById('main-title');
+        const subTitleContainer = document.getElementById('sub-title');
+
+        const allChars = [];
+
+        // Helper function to build letter elements
+        function buildSpans(text, container) {
+            text.split('').forEach((char) => {
+                const span = document.createElement('span');
+                if (char === ' ') {
+                    span.className = 'char space';
+                    span.textContent = ' ';
+                } else {
+                    span.className = 'char';
+                    span.textContent = char;
+                }
+                container.appendChild(span);
+                allChars.push(span);
+            });
+        }
+
+        buildSpans(titleText, mainTitleContainer);
+        buildSpans(subtitleText, subTitleContainer);
+
+        // Smooth cursor tracking variables
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let targetMouseX = mouseX;
+        let targetMouseY = mouseY;
+
+        window.addEventListener('mousemove', (e) => {
+            targetMouseX = e.clientX;
+            targetMouseY = e.clientY;
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                targetMouseX = e.touches[0].clientX;
+                targetMouseY = e.touches[0].clientY;
+            }
+        });
+
+        const startTime = performance.now();
+
+        function animate() {
+            const elapsed = (performance.now() - startTime) / 1000;
+
+            // Interpolate mouse position for fluid movement
+            mouseX += (targetMouseX - mouseX) * 0.08;
+            mouseY += (targetMouseY - mouseY) * 0.08;
+
+            allChars.forEach((charEl, index) => {
+                const rect = charEl.getBoundingClientRect();
+                const charCenterX = rect.left + rect.width / 2;
+                const charCenterY = rect.top + rect.height / 2;
+
+                // Vector towards cursor
+                const deltaX = mouseX - charCenterX;
+                const deltaY = mouseY - charCenterY;
+                const distance = Math.hypot(deltaX, deltaY);
+
+                // Magnetic pull calculation (stronger closer to cursor, subtle cap)
+                const maxPullDistance = 450;
+                const pullStrength = Math.max(0, 1 - distance / maxPullDistance);
+                const pullX = deltaX * pullStrength * 0.12;
+                const pullY = deltaY * pullStrength * 0.12;
+
+                // Sine wave motion based on character index and time
+                const waveY = Math.sin(elapsed * 3 + index * 0.35) * 8;
+                const waveX = Math.cos(elapsed * 2 + index * 0.25) * 3;
+
+                // Combine wave + magnetic pull
+                const finalX = waveX + pullX;
+                const finalY = waveY + pullY;
+
+                charEl.style.transform = `translate3d(${finalX}px, ${finalY}px, 0)`;
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
